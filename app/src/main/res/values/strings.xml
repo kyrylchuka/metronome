@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Metronome</string>
+    <string name="start">START</string>
+    <string name="stop">STOP</string>
+    <string name="indicator">INDICATOR</string>
+    <string name="bpm">bpm</string>
+    <string name="bpm_text">SET BPM YOU NEED BELOW</string>
+    <string name="manual_mode">MANUAL MODE</string>
+    <string name="set_bpm">100</string>
+    <string name="minus">–</string>
+    <string name="plus">+</string>
+    <string name="imageViewIndicator">imageViewIndicator</string>
+</resources>
