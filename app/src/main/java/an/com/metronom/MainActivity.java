@@ -266,8 +266,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-//                int pos = etStep.getText().length();
-//                etStep.setSelection(pos);
+                int pos = etStep.getText().length();
+                etStep.setSelection(pos);
 
                 String value = s.toString();
                 String regex = "(^1?[0-9]?[0-9])|(^200)";
