@@ -135,7 +135,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="12dp"
                 android:layout_weight="1"
-                android:max="200"
+                android:max="120"
 
                 android:progressDrawable="@drawable/seek_bar_xml"
                 android:thumb="@drawable/arrows1"

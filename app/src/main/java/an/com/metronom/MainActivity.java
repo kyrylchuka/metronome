@@ -34,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
     final String LOG_TAG = "...Metronome - Main";
     final static int MIN_BPM = 1;
-    final static int MAX_BPM = 200;
-    final static int STEP_BPM = 250;
+    final static int MAX_BPM = 120;
+    final static int STEP_BPM = 500;
     final static int START_BPM = 1;
     /*BroadcastReceiver*/
     final static int STATUS_REUSE = 100;
@@ -76,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageView indicator;
 
 
-    private int step;
+    private int gap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             startValue = START_BPM;
         }
         mSeekBar.setProgress(startValue);
-        etStep.setText(String.valueOf(startValue));
+        etStep.setText(String.valueOf(progressToStep(startValue)));
 
 
         if (MetronomeService.isInstanceCreated()) {
@@ -266,15 +267,16 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+                /*to focus position in end text*/
                 int pos = etStep.getText().length();
                 etStep.setSelection(pos);
 
                 String value = s.toString();
-                String regex = "(^1?[0-9]?[0-9])|(^200)";
+                String regex = "(^1?[0-9]?[0-9])|(^120)";
                 if (value.matches(regex) && Integer.parseInt(value) != 0) {
                     etStep.setTextColor(Color.BLACK);
 
-                    mSeekBar.setProgress(Integer.valueOf(String.valueOf(etStep.getText())));
+                    mSeekBar.setProgress(progressToStep(Integer.valueOf(String.valueOf(etStep.getText()))));
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -301,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
                 if (progress < MIN_BPM) {
                     progress = MIN_BPM;
                 }
-                etStep.setText(String.valueOf(progress));
+                etStep.setText(String.valueOf(progressToStep(progress)));
                 getDelayBmp();
 
             }
@@ -344,26 +346,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickUp(View v) {
-        step = mSeekBar.getProgress() + 1;
-        if (step >= MAX_BPM) {
-            step = MAX_BPM;
+        gap = mSeekBar.getProgress()+1;
+        if (gap >= MAX_BPM) {
+            gap = MAX_BPM;
         }
-        etStep.setText(String.valueOf(step));
+        etStep.setText(String.valueOf(progressToStep(gap)));
         if (bound) {
-            mService.toGo(step);
+            mService.toGo(gap);
 
             log("...onClickUp");
         }
     }
 
     public void onClickDown(View v) {
-        step = mSeekBar.getProgress() - 1;
-        if (step <= MIN_BPM) {
-            step = MIN_BPM;
+        gap = mSeekBar.getProgress()-1;
+        if (gap <= MIN_BPM) {
+            gap = MIN_BPM;
         }
-        etStep.setText(String.valueOf(step));
+        etStep.setText(String.valueOf(progressToStep(gap)));
         if (bound) {
-            mService.toGo(step);
+            mService.toGo(gap);
             log("...onClickDown");
         }
     }
@@ -487,6 +489,7 @@ public class MainActivity extends AppCompatActivity {
     protected void saved() {
         sPref = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
+
         ed.putInt(SAVED_BMP, mSeekBar.getProgress());
         ed.putBoolean(SAVED_MODE_VIBRATION, ifVibration);
         ed.putBoolean(SAVED_MODE_FLASH, ifFlash);
@@ -526,6 +529,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return super.dispatchTouchEvent( event );
+    }
+   int progressToStep(int progress){
+       return  121-progress;
     }
 }
 

@@ -216,9 +216,9 @@ public class MetronomeService extends Service {
     }
 
     private void exemptCamRes() {
-        mCamera.stopPreview();
-        if (mCamera != null)
-            mCamera.release();
+        if (mCamera != null){
+            mCamera.stopPreview();
+            mCamera.release();}
         mCamera = null;
         log("...camera is exempted");
     }
