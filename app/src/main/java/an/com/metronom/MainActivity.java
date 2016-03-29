@@ -9,6 +9,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -34,8 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     final String LOG_TAG = "...Metronome - Main";
     final static int MIN_BPM = 1;
-    final static int MAX_BPM = 120;
-    final static int STEP_BPM = 500;
+    final static int MAX_BPM = 200;
     final static int START_BPM = 1;
     /*BroadcastReceiver*/
     final static int STATUS_REUSE = 100;
@@ -44,19 +44,7 @@ public class MainActivity extends AppCompatActivity {
     final static String PARAM_BUTTON = "button_flash";
     final static String BROADCAST_ACTION = "com.an.metronome";
 
-
-
-    private void log(String message) {
-        if(debug){
-        Log.d(LOG_TAG, message);}
-        //    Log.d(LOG_TAG, this.getClass().getSimpleName() + " . " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    }
-//    public void setDebug(boolean d){
-//        debug = d;
-//    }
-
     private SharedPreferences sPref;
-
 
     private boolean bound = false;
     private boolean ifStart = true;
@@ -77,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private int gap;
+    private Drawable draw;
 
 
     @Override
@@ -101,36 +90,30 @@ public class MainActivity extends AppCompatActivity {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                             draw = getDrawable(R.drawable.indicator0);}else{
+                             draw = getResources().getDrawable(R.drawable.indicator0);}
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                        indicator.setImageDrawable(getDrawable(R.drawable.indicator0));
-                                    } else {
-
-                                        indicator.setImageDrawable(getResources().getDrawable(R.drawable.indicator0));
+                                        indicator.setImageDrawable(draw);
 //                                        log("...green");
-                                    }
-
                                 }
 
                             });
                             try {
-                                Thread.sleep(STEP_BPM / 2);
+                                Thread.sleep(30000/MAX_BPM);// max bmp/2
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                draw = getDrawable(R.drawable.indicator0b);}else{
+                                draw = getResources().getDrawable(R.drawable.indicator0b);}
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                        indicator.setImageDrawable(getDrawable(R.drawable.indicator0b));
-                                    } else {
-
-                                        indicator.setImageDrawable(getResources().getDrawable(R.drawable.indicator0b));
+                                        indicator.setImageDrawable(draw);
 //                                        log("...black");
-                                    }
 
                                 }
                             });
@@ -191,9 +174,6 @@ public class MainActivity extends AppCompatActivity {
         if (MetronomeService.isInstanceCreated()) {
             start.setText(R.string.stop);
             start.setBackgroundResource(R.color.colorButtonStop);
-//            if (!bound) {
-//                bindService(intent, sConn, 0);
-//            }
             ifStart = false;
         }
         View.OnClickListener onClickManualPanel = new View.OnClickListener() {
@@ -272,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
                 etStep.setSelection(pos);
 
                 String value = s.toString();
-                String regex = "(^1?[0-9]?[0-9])|(^120)";
+                String regex = "(^1?[0-9]?[0-9])|(^200)";
                 if (value.matches(regex) && Integer.parseInt(value) != 0) {
                     etStep.setTextColor(Color.BLACK);
 
@@ -328,22 +308,7 @@ public class MainActivity extends AppCompatActivity {
         log("...onStart");
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        log("...onStop");
-        if (bound) {
-            mService.sendNotify();
-            unbindService(sConn);
-            bound = false;
-        }
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        log("...onResume");
-    }
 
     public void onClickUp(View v) {
         gap = mSeekBar.getProgress()+1;
@@ -370,14 +335,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        log("...onDestroy");
-        saved();
-        unregisterReceiver(br);
-        super.onDestroy();
-
-    }
 
     protected void startMetronome(boolean isStart) {
         if (isStart) {
@@ -416,6 +373,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void vibrationMode(boolean isVibration) {
+
         if (isVibration) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 vibration.setCompoundDrawablesWithIntrinsicBounds(null, getDrawable(R.drawable.v3b), null, null);
@@ -486,6 +444,50 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
+/*editText for disable focus*/
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if ( v instanceof EditText) {
+                Rect outRect = new Rect();
+                v.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
+                    v.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+            }
+        }
+        return super.dispatchTouchEvent( event );
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        log("...onStop");
+        if (bound) {
+            mService.sendNotify();
+            unbindService(sConn);
+            bound = false;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        log("...onResume");
+    }
+
+    @Override
+    protected void onDestroy() {
+        log("...onDestroy");
+        saved();
+        unregisterReceiver(br);
+        super.onDestroy();
+
+    }
+
     protected void saved() {
         sPref = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
@@ -513,25 +515,13 @@ public class MainActivity extends AppCompatActivity {
         return savedValue;
 
     }
-/*editText for disable focus*/
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            View v = getCurrentFocus();
-            if ( v instanceof EditText) {
-                Rect outRect = new Rect();
-                v.getGlobalVisibleRect(outRect);
-                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
-                    v.clearFocus();
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
-            }
-        }
-        return super.dispatchTouchEvent( event );
+    private void log(String message) {
+        if(debug){
+            Log.d(LOG_TAG, message);}
+        //    Log.d(LOG_TAG, this.getClass().getSimpleName() + " . " + Thread.currentThread().getStackTrace()[1].getMethodName());
     }
-   int progressToStep(int progress){
-       return  121-progress;
-    }
+//    public void setDebug(boolean d){
+//        debug = d;
+//    }
 }
 

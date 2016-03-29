@@ -89,7 +89,7 @@ public class MetronomeService extends Service {
 
     private long interval(int step) {
         if (step >= MainActivity.MIN_BPM && step <= MainActivity.MAX_BPM) {
-            return MainActivity.STEP_BPM * step;
+            return 60000/step;
         }
         log("interval = 0");
         return 0;
@@ -169,7 +169,7 @@ public class MetronomeService extends Service {
         }
     }
    protected void toGo(int gap) {
-        step = MainActivity.MAX_BPM+1 - gap;
+        step = gap;
         schedule();
     }
 
@@ -180,7 +180,7 @@ public class MetronomeService extends Service {
             if (!f){ mCamera.stopPreview();}
         }
         isSound = s;
-        step = MainActivity.MAX_BPM+1 -gap;
+        step = gap;
         schedule();
     }
 
@@ -202,18 +202,6 @@ public class MetronomeService extends Service {
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        log("...onDestroy");
-        instance = null;
-        timer.cancel();
-        exemptCamRes();
-        exemptSoundRes();
-            if (notificationManager != null) {
-                notificationManager.cancel(NOTIFY_ID);
-            }
-    }
 
     private void exemptCamRes() {
         if (mCamera != null){
@@ -320,4 +308,18 @@ public class MetronomeService extends Service {
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFY_ID, notification);
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        log("...onDestroy");
+        instance = null;
+        timer.cancel();
+        exemptCamRes();
+        exemptSoundRes();
+        if (notificationManager != null) {
+            notificationManager.cancel(NOTIFY_ID);
+        }
+    }
+
 }
