@@ -5,7 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorManualModePanel">#4ec3f7</color>
     <color name="colorButtonStart">#03a9f4</color>
-    <color name="colorButtonStop">#414141</color>
+    <color name="colorButtonStop">#515151</color>
     <color name="colorTintIndicator">#000000</color>
     <color name="colorTintButtonManual">#000000</color>
 </resources>

@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             startValue = START_BPM;
         }
         mSeekBar.setProgress(startValue);
-        etStep.setText(String.valueOf(progressToStep(startValue)));
+        etStep.setText(String.valueOf(startValue));
 
 
         if (MetronomeService.isInstanceCreated()) {
@@ -276,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
                 if (value.matches(regex) && Integer.parseInt(value) != 0) {
                     etStep.setTextColor(Color.BLACK);
 
-                    mSeekBar.setProgress(progressToStep(Integer.valueOf(String.valueOf(etStep.getText()))));
+                    mSeekBar.setProgress(Integer.valueOf(String.valueOf(etStep.getText())));
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
                 if (progress < MIN_BPM) {
                     progress = MIN_BPM;
                 }
-                etStep.setText(String.valueOf(progressToStep(progress)));
+                etStep.setText(String.valueOf(progress));
                 getDelayBmp();
 
             }
@@ -350,7 +350,7 @@ public class MainActivity extends AppCompatActivity {
         if (gap >= MAX_BPM) {
             gap = MAX_BPM;
         }
-        etStep.setText(String.valueOf(progressToStep(gap)));
+        etStep.setText(String.valueOf(gap));
         if (bound) {
             mService.toGo(gap);
 
@@ -363,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
         if (gap <= MIN_BPM) {
             gap = MIN_BPM;
         }
-        etStep.setText(String.valueOf(progressToStep(gap)));
+        etStep.setText(String.valueOf(gap));
         if (bound) {
             mService.toGo(gap);
             log("...onClickDown");

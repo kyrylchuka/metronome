@@ -169,7 +169,7 @@ public class MetronomeService extends Service {
         }
     }
    protected void toGo(int gap) {
-        step = gap;
+        step = MainActivity.MAX_BPM+1 - gap;
         schedule();
     }
 
@@ -180,7 +180,7 @@ public class MetronomeService extends Service {
             if (!f){ mCamera.stopPreview();}
         }
         isSound = s;
-        step = gap;
+        step = MainActivity.MAX_BPM+1 -gap;
         schedule();
     }
 
